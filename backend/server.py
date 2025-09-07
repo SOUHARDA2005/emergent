@@ -346,7 +346,7 @@ async def generate_timetable(department: str, semester: int):
 
 @api_router.get("/timetables", response_model=List[Timetable])
 async def get_timetables():
-    timetables = await db.timetables.find().to_list(100)
+    timetables = await db.timetables.find({}, {"_id": 0}).to_list(100)
     return [Timetable(**timetable) for timetable in timetables]
 
 @api_router.get("/timetables/{timetable_id}", response_model=Timetable)

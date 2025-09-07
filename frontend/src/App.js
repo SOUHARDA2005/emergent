@@ -260,6 +260,20 @@ const AdminPortal = () => {
     setLoading(false);
   };
 
+  const initializeSampleData = async () => {
+    setLoading(true);
+    try {
+      await axios.post(`${API}/init-sample-data`);
+      alert('Sample data initialized successfully!');
+      fetchDashboardStats();
+      fetchTimetables();
+    } catch (error) {
+      console.error('Error initializing sample data:', error);
+      alert('Error initializing sample data.');
+    }
+    setLoading(false);
+  };
+
   const clearTimetables = async (type) => {
     if (!confirm(`Are you sure you want to clear ${type === 'current' ? `${selectedDept} Semester ${selectedSem}` : 'ALL'} timetables? This action cannot be undone.`)) {
       return;

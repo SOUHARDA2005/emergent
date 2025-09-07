@@ -104,6 +104,21 @@
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
+/* Timetable specific styles */
+.timetable-entry {
+  transition: all 0.2s ease;
+}
+
+.timetable-entry:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.active-timetable {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-left: 4px solid #0ea5e9;
+}
+
 /* Gradient backgrounds */
 .gradient-bg {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

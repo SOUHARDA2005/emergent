@@ -251,11 +251,12 @@ const AdminPortal = () => {
       // Activate the new timetable
       await axios.patch(`${API}/timetables/${response.data.id}/activate`);
       
-      alert(`Timetable generated successfully for ${selectedDept} Semester ${selectedSem}!`);
+      alert(`✅ Timetable generated and activated successfully for ${selectedDept} Semester ${selectedSem}!\n\nGenerated ${response.data.entries?.length || 0} class schedules.`);
       fetchTimetables();
+      fetchDashboardStats(); // Refresh stats after generation
     } catch (error) {
       console.error('Error generating timetable:', error);
-      alert('Error generating timetable. Please ensure you have the required data (rooms, faculty, subjects, batches).');
+      alert('❌ Error generating timetable.\n\nPlease ensure you have:\n• Rooms configured\n• Faculty assigned to subjects\n• Subjects created for the department/semester\n• Batches created with assigned subjects');
     }
     setLoading(false);
   };
@@ -264,18 +265,22 @@ const AdminPortal = () => {
     setLoading(true);
     try {
       await axios.post(`${API}/init-sample-data`);
-      alert('Sample data initialized successfully!');
+      alert('🚀 Sample data initialized successfully!\n\nCreated:\n• 5 Rooms (classrooms and labs)\n• 4 Faculty members\n• 5 Subjects for CS Semester 3\n• 2 Student batches (CS-3A, CS-3B)\n• 2 Sample assignments\n\nYou can now generate timetables!');
       fetchDashboardStats();
       fetchTimetables();
     } catch (error) {
       console.error('Error initializing sample data:', error);
-      alert('Error initializing sample data.');
+      alert('❌ Error initializing sample data. Please try again.');
     }
     setLoading(false);
   };
 
   const clearTimetables = async (type) => {
-    if (!confirm(`Are you sure you want to clear ${type === 'current' ? `${selectedDept} Semester ${selectedSem}` : 'ALL'} timetables? This action cannot be undone.`)) {
+    const confirmMessage = type === 'current' 
+      ? `⚠️ Clear Current Schedule\n\nThis will permanently delete all timetables for:\n${selectedDept} Semester ${selectedSem}\n\nThis action cannot be undone. Continue?`
+      : `⚠️ Clear ALL Schedules\n\nThis will permanently delete ALL timetables from the entire system for all departments and semesters.\n\nThis action cannot be undone. Continue?`;
+      
+    if (!confirm(confirmMessage)) {
       return;
     }
 
@@ -288,12 +293,12 @@ const AdminPortal = () => {
         response = await axios.delete(`${API}/timetables/clear-all`);
       }
       
-      alert(response.data.message);
+      alert(`✅ ${response.data.message}`);
       fetchTimetables();
       fetchDashboardStats();
     } catch (error) {
       console.error('Error clearing timetables:', error);
-      alert('Error clearing timetables.');
+      alert('❌ Error clearing timetables. Please try again.');
     }
     setLoading(false);
   };
@@ -427,7 +432,7 @@ const AdminPortal = () => {
                 <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg p-6">
                   <h3 className="text-white text-lg font-semibold mb-2">Quick Setup</h3>
                   <p className="text-indigo-100 mb-4">
-                    New to SmartClass? Initialize sample data to get started quickly with demo rooms, faculty, subjects, and batches.
+                    New to SmartClass? Initialize sample data to get started quickly with demo rooms, faculty, subjects, and batches. This will create everything needed to test the timetable generation.
                   </p>
                   <button
                     onClick={initializeSampleData}
@@ -495,6 +500,8 @@ const AdminPortal = () => {
                         <li>✓ Workload balancing</li>
                         <li>✓ Laboratory requirement handling</li>
                         <li>✓ Time slot conflict resolution</li>
+                        <li>✓ Multi-batch scheduling</li>
+                        <li>✓ Subject hour distribution</li>
                       </ul>
                     </div>
 
@@ -543,7 +550,9 @@ const AdminPortal = () => {
                 {timetables.length > 0 ? (
                   <div className="space-y-4">
                     {timetables.map((timetable) => (
-                      <div key={timetable.id} className="bg-white border rounded-lg p-6 hover:shadow-md transition-shadow">
+                      <div key={timetable.id} className={`border rounded-lg p-6 hover:shadow-md transition-shadow ${
+                        timetable.is_active ? 'bg-green-50 border-green-200' : 'bg-white border-gray-200'
+                      }`}>
                         <div className="flex justify-between items-start mb-4">
                           <div>
                             <h3 className="text-lg font-semibold text-gray-900">{timetable.name}</h3>
@@ -554,31 +563,41 @@ const AdminPortal = () => {
                           <div className="flex items-center space-x-3">
                             <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                               timetable.is_active 
-                                ? 'bg-green-100 text-green-800' 
+                                ? 'bg-green-100 text-green-800 border border-green-300' 
                                 : 'bg-gray-100 text-gray-800'
                             }`}>
-                              {timetable.is_active ? '✓ Active' : 'Inactive'}
+                              {timetable.is_active ? '🟢 Active' : '⚪ Inactive'}
                             </span>
-                            <Link
-                              to={`/admin/timetable/${timetable.id}`}
-                              className="text-indigo-600 hover:text-indigo-800 font-medium"
-                            >
-                              View Details →
-                            </Link>
+                            {!timetable.is_active && (
+                              <button
+                                onClick={async () => {
+                                  try {
+                                    await axios.patch(`${API}/timetables/${timetable.id}/activate`);
+                                    alert(`✅ Timetable "${timetable.name}" has been activated!`);
+                                    fetchTimetables();
+                                  } catch (error) {
+                                    alert('❌ Error activating timetable');
+                                  }
+                                }}
+                                className="text-indigo-600 hover:text-indigo-800 font-medium px-3 py-1 rounded border border-indigo-300 hover:bg-indigo-50"
+                              >
+                                Activate
+                              </button>
+                            )}
                           </div>
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
                           <div>
-                            <span className="font-medium">Classes Scheduled:</span> {timetable.entries?.length || 0}
+                            <span className="font-medium">📚 Classes:</span> {timetable.entries?.length || 0}
                           </div>
                           <div>
-                            <span className="font-medium">Created:</span> {new Date(timetable.created_at).toLocaleDateString()}
+                            <span className="font-medium">📅 Created:</span> {new Date(timetable.created_at).toLocaleDateString()}
                           </div>
                           <div>
-                            <span className="font-medium">Status:</span> 
+                            <span className="font-medium">🎯 Status:</span> 
                             <span className={timetable.is_active ? 'text-green-600' : 'text-gray-500'}>
-                              {timetable.is_active ? ' Currently Active' : ' Draft'}
+                              {timetable.is_active ? ' Live & Active' : ' Draft/Inactive'}
                             </span>
                           </div>
                         </div>
@@ -617,6 +636,7 @@ const StudentPortal = () => {
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('timetable');
+  const [batchInfo, setBatchInfo] = useState(null);
 
   useEffect(() => {
     fetchBatches();
@@ -640,10 +660,18 @@ const StudentPortal = () => {
     setLoading(true);
     try {
       const response = await axios.get(`${API}/student/timetable/${batchId}`);
-      setTimetable(response.data.timetable || []);
+      const data = response.data;
+      setTimetable(data.timetable || []);
+      setBatchInfo(data.batch_info || null);
+      
+      // If no timetable found, check if there are any active timetables for this batch's department/semester
+      if (!data.timetable || data.timetable.length === 0) {
+        console.log('No active timetable found for batch:', batchId);
+      }
     } catch (error) {
       console.error('Error fetching timetable:', error);
       setTimetable([]);
+      setBatchInfo(null);
     }
     setLoading(false);
   };
@@ -773,28 +801,41 @@ const StudentPortal = () => {
                 {activeTab === 'timetable' && (
                   <div>
                     <h3 className="text-xl font-semibold text-gray-900 mb-6">Weekly Timetable</h3>
+                    
+                    {batchInfo && (
+                      <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+                        <h4 className="font-semibold text-blue-900 mb-2">Current Batch: {batchInfo.name}</h4>
+                        <p className="text-blue-800">
+                          Department: {batchInfo.department} | Semester: {batchInfo.semester} | Students: {batchInfo.student_count}
+                        </p>
+                      </div>
+                    )}
+                    
                     {loading ? (
                       <div className="flex justify-center py-8">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
                       </div>
                     ) : timetable.length > 0 ? (
                       <div className="overflow-x-auto">
-                        <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
                           {Object.entries(groupedTimetable).map(([day, dayClasses]) => (
                             <div key={day} className="bg-gray-50 rounded-lg p-4">
                               <h4 className="font-semibold text-gray-900 mb-3 text-center">{day}</h4>
                               <div className="space-y-2">
                                 {dayClasses.length > 0 ? (
                                   dayClasses.map((classItem, index) => (
-                                    <div key={index} className="bg-white rounded p-3 border-l-4 border-indigo-500">
+                                    <div key={index} className="bg-white rounded-lg p-3 border-l-4 border-indigo-500 shadow-sm hover:shadow-md transition-shadow">
                                       <div className="text-sm font-medium text-gray-900">
+                                        {classItem.subject_name}
+                                      </div>
+                                      <div className="text-xs text-indigo-600 font-medium">
                                         {classItem.subject_code}
                                       </div>
                                       <div className="text-xs text-gray-600">
-                                        {classItem.start_time} - {classItem.end_time}
+                                        ⏰ {classItem.start_time} - {classItem.end_time}
                                       </div>
                                       <div className="text-xs text-gray-500">
-                                        {classItem.faculty_name}
+                                        👨‍🏫 {classItem.faculty_name}
                                       </div>
                                       <div className="text-xs text-gray-500">
                                         📍 {classItem.room_name}
@@ -812,8 +853,20 @@ const StudentPortal = () => {
                         </div>
                       </div>
                     ) : (
-                      <div className="text-center py-8">
-                        <p className="text-gray-500">No timetable available. Please contact administration.</p>
+                      <div className="text-center py-12">
+                        <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                          <span className="text-4xl">📅</span>
+                        </div>
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">No Active Timetable</h3>
+                        <p className="text-gray-600 mb-4">
+                          {batchInfo 
+                            ? `No active timetable found for ${batchInfo.name} (${batchInfo.department} Semester ${batchInfo.semester})`
+                            : 'No timetable available for the selected batch'
+                          }
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          Please contact your administration to generate and activate a timetable for your batch.
+                        </p>
                       </div>
                     )}
                   </div>

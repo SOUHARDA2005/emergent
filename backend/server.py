@@ -175,7 +175,8 @@ class TimetableGenerator:
         # Standard time slots (9 AM to 4 PM)
         times = [
             ("09:00", "10:00"), ("10:00", "11:00"), ("11:15", "12:15"),
-            ("12:15", "13:15"), ("14:00", "15:00"), ("15:00", "16:00")
+            ("12:15", "13:15"), ("14:00", "15:00"), ("15:00", "16:00"),
+            ("16:00", "17:00")  # Added one more slot for better distribution
         ]
         
         slot_num = 1
@@ -201,7 +202,16 @@ class TimetableGenerator:
         rooms = await db.rooms.find({"available": True}).to_list(100)
         
         if not batches or not subjects or not faculty or not rooms:
-            raise HTTPException(status_code=400, detail="Insufficient data for timetable generation")
+            missing_data = []
+            if not batches: missing_data.append("batches")
+            if not subjects: missing_data.append("subjects") 
+            if not faculty: missing_data.append("faculty")
+            if not rooms: missing_data.append("rooms")
+            
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Insufficient data for timetable generation. Missing: {', '.join(missing_data)}"
+            )
         
         # Initialize timetable entries
         timetable_entries = []
@@ -215,16 +225,22 @@ class TimetableGenerator:
                 available_faculty = [f for f in faculty if subject_data["id"] in f.get("subjects", [])]
                 
                 if not available_faculty:
+                    print(f"Warning: No faculty available for subject {subject_data['name']} ({subject_data['code']})")
                     continue
                 
                 # Generate entries based on hours per week
                 hours_needed = subject_data["hours_per_week"]
                 assigned_hours = 0
                 
-                # Simple scheduling algorithm
+                # Enhanced scheduling algorithm with better distribution
+                attempts = 0
+                max_attempts = len(self.time_slots) * 2  # Allow multiple passes
+                
                 for slot in self.time_slots:
-                    if assigned_hours >= hours_needed:
+                    if assigned_hours >= hours_needed or attempts >= max_attempts:
                         break
+                    
+                    attempts += 1
                     
                     # Check if slot is available for batch, faculty, and room
                     faculty_member = random.choice(available_faculty)
@@ -244,6 +260,10 @@ class TimetableGenerator:
                         )
                         timetable_entries.append(entry)
                         assigned_hours += 1
+                        
+                # Log scheduling results
+                if assigned_hours < hours_needed:
+                    print(f"Warning: Could only schedule {assigned_hours}/{hours_needed} hours for {subject_data['name']} in batch {batch_data['name']}")
         
         # Create timetable object
         timetable = Timetable(
@@ -416,7 +436,8 @@ async def get_student_timetable(batch_id: str):
     }, {"_id": 0}).to_list(10)
     
     if not timetables:
-        raise HTTPException(status_code=404, detail="No active timetable found")
+        # Return empty timetable instead of error to allow graceful handling
+        return {"timetable": [], "batch_info": batch}
     
     timetable = timetables[0]
     

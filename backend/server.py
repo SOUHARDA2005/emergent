@@ -381,9 +381,9 @@ async def get_student_timetable(batch_id: str):
     for entry in timetable["entries"]:
         if entry["batch_id"] == batch_id:
             # Get subject, faculty, and room details
-            subject = await db.subjects.find_one({"id": entry["subject_id"]})
-            faculty = await db.faculty.find_one({"id": entry["faculty_id"]})
-            room = await db.rooms.find_one({"id": entry["room_id"]})
+            subject = await db.subjects.find_one({"id": entry["subject_id"]}, {"_id": 0})
+            faculty = await db.faculty.find_one({"id": entry["faculty_id"]}, {"_id": 0})
+            room = await db.rooms.find_one({"id": entry["room_id"]}, {"_id": 0})
             
             enriched_entry = {
                 **entry,

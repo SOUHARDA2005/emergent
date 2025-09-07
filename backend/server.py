@@ -300,7 +300,7 @@ async def create_faculty(faculty_data: FacultyCreate):
 
 @api_router.get("/faculty", response_model=List[Faculty])
 async def get_faculty():
-    faculty_list = await db.faculty.find().to_list(100)
+    faculty_list = await db.faculty.find({}, {"_id": 0}).to_list(100)
     return [Faculty(**faculty) for faculty in faculty_list]
 
 # Subject Management

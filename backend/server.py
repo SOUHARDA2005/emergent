@@ -334,7 +334,7 @@ async def get_batches():
 
 @api_router.get("/batches/department/{department}/semester/{semester}", response_model=List[Batch])
 async def get_batches_by_dept_sem(department: str, semester: int):
-    batches = await db.batches.find({"department": department, "semester": semester}).to_list(100)
+    batches = await db.batches.find({"department": department, "semester": semester}, {"_id": 0}).to_list(100)
     return [Batch(**batch) for batch in batches]
 
 # Timetable Generation

@@ -312,7 +312,7 @@ async def create_subject(subject_data: SubjectCreate):
 
 @api_router.get("/subjects", response_model=List[Subject])
 async def get_subjects():
-    subjects = await db.subjects.find().to_list(100)
+    subjects = await db.subjects.find({}, {"_id": 0}).to_list(100)
     return [Subject(**subject) for subject in subjects]
 
 @api_router.get("/subjects/department/{department}/semester/{semester}", response_model=List[Subject])

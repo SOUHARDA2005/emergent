@@ -434,7 +434,7 @@ async def get_faculty_details(faculty_id: str):
 
 @api_router.get("/rooms/{room_id}", response_model=Room)
 async def get_room_details(room_id: str):
-    room = await db.rooms.find_one({"id": room_id})
+    room = await db.rooms.find_one({"id": room_id}, {"_id": 0})
     if not room:
         raise HTTPException(status_code=404, detail="Room not found")
     return Room(**room)

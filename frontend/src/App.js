@@ -43,12 +43,12 @@ const LandingPage = () => {
             Maximize resource utilization, minimize conflicts, and create the perfect schedule for everyone.
           </p>
           <div className="flex justify-center space-x-4">
+            <Link to="/admin" className="border-2 border-indigo-600 text-indigo-600 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-indigo-50 transition-colors">
+              Admin Portal
+            </Link>
             <Link to="/student" className="bg-indigo-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-indigo-700 transition-colors">
               View Student Portal
             </Link>
-            <button className="border-2 border-indigo-600 text-indigo-600 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-indigo-50 transition-colors">
-              Learn More
-            </button>
           </div>
         </div>
       </div>

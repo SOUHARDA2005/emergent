@@ -411,8 +411,8 @@ async def get_assignments_for_batch(batch_id: str):
     # Enrich with subject and faculty details
     enriched_assignments = []
     for assignment in assignments:
-        subject = await db.subjects.find_one({"id": assignment["subject_id"]})
-        faculty = await db.faculty.find_one({"id": assignment["faculty_id"]})
+        subject = await db.subjects.find_one({"id": assignment["subject_id"]}, {"_id": 0})
+        faculty = await db.faculty.find_one({"id": assignment["faculty_id"]}, {"_id": 0})
         
         enriched_assignment = {
             **assignment,

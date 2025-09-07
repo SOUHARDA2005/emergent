@@ -356,6 +356,27 @@ async def get_timetable(timetable_id: str):
         raise HTTPException(status_code=404, detail="Timetable not found")
     return Timetable(**timetable)
 
+@api_router.patch("/timetables/{timetable_id}/activate")
+async def activate_timetable(timetable_id: str):
+    """Activate a timetable and deactivate others in same department/semester"""
+    timetable = await db.timetables.find_one({"id": timetable_id}, {"_id": 0})
+    if not timetable:
+        raise HTTPException(status_code=404, detail="Timetable not found")
+    
+    # Deactivate other timetables in same department/semester
+    await db.timetables.update_many(
+        {"department": timetable["department"], "semester": timetable["semester"]},
+        {"$set": {"is_active": False}}
+    )
+    
+    # Activate this timetable
+    await db.timetables.update_one(
+        {"id": timetable_id},
+        {"$set": {"is_active": True}}
+    )
+    
+    return {"message": "Timetable activated successfully"}
+
 # Student Portal APIs
 @api_router.get("/student/timetable/{batch_id}")
 async def get_student_timetable(batch_id: str):

@@ -868,6 +868,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/admin" element={<AdminPortal />} />
           <Route path="/student" element={<StudentPortal />} />
         </Routes>
       </BrowserRouter>

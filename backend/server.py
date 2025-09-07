@@ -361,7 +361,7 @@ async def get_timetable(timetable_id: str):
 async def get_student_timetable(batch_id: str):
     """Get timetable for a specific batch (student view)"""
     # Find active timetable for the batch
-    batch = await db.batches.find_one({"id": batch_id})
+    batch = await db.batches.find_one({"id": batch_id}, {"_id": 0})
     if not batch:
         raise HTTPException(status_code=404, detail="Batch not found")
     

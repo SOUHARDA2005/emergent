@@ -182,6 +182,7 @@ const LandingPage = () => {
           <div className="text-center">
             <h3 className="text-2xl font-bold mb-4">SmartClass Timetable Scheduler</h3>
             <p className="text-gray-400 mb-6">Empowering educational institutions with intelligent scheduling solutions</p>
+            <Link to="/admin" className="text-indigo-600 hover:text-indigo-800 mr-4">Admin Portal</Link>
             <Link to="/student" className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors">
               Access Student Portal
             </Link>

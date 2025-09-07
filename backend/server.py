@@ -369,7 +369,7 @@ async def get_student_timetable(batch_id: str):
         "department": batch["department"], 
         "semester": batch["semester"],
         "is_active": True
-    }).to_list(10)
+    }, {"_id": 0}).to_list(10)
     
     if not timetables:
         raise HTTPException(status_code=404, detail="No active timetable found")

@@ -260,16 +260,26 @@ const AdminPortal = () => {
     setLoading(false);
   };
 
-  const initializeSampleData = async () => {
+  const clearTimetables = async (type) => {
+    if (!confirm(`Are you sure you want to clear ${type === 'current' ? `${selectedDept} Semester ${selectedSem}` : 'ALL'} timetables? This action cannot be undone.`)) {
+      return;
+    }
+
     setLoading(true);
     try {
-      await axios.post(`${API}/init-sample-data`);
-      alert('Sample data initialized successfully!');
-      fetchDashboardStats();
+      let response;
+      if (type === 'current') {
+        response = await axios.delete(`${API}/timetables/clear/${encodeURIComponent(selectedDept)}/${selectedSem}`);
+      } else {
+        response = await axios.delete(`${API}/timetables/clear-all`);
+      }
+      
+      alert(response.data.message);
       fetchTimetables();
+      fetchDashboardStats();
     } catch (error) {
-      console.error('Error initializing sample data:', error);
-      alert('Error initializing sample data.');
+      console.error('Error clearing timetables:', error);
+      alert('Error clearing timetables.');
     }
     setLoading(false);
   };

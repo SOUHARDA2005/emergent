@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#2563eb" />
+    <meta
+      name="description"
+      content="Smart Classroom & Timetable Scheduler - AI-powered scheduling for educational institutions"
+    />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    
+    <!-- Font optimization -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="keywords" content="timetable, scheduler, classroom management, education, AI, scheduling">
+    <meta name="author" content="SmartClass Team">
+    
+    <!-- Open Graph Tags -->
+    <meta property="og:title" content="SmartClass - Smart Classroom & Timetable Scheduler">
+    <meta property="og:description" content="Revolutionary AI-powered scheduling for educational institutions">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="%PUBLIC_URL%/logo512.png">
+    
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="SmartClass - Smart Classroom & Timetable Scheduler">
+    <meta name="twitter:description" content="Revolutionary AI-powered scheduling for educational institutions">
+    
+    <title>SmartClass - Smart Classroom & Timetable Scheduler</title>
+    
+    <style>
+      /* Critical CSS for loading state */
+      #root {
+        min-height: 100vh;
+      }
+      
+      .loading-spinner {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(37, 99, 235, 0.3);
+        border-radius: 50%;
+        border-top-color: #2563eb;
+        animation: spin 1s ease-in-out infinite;
+        margin: 20px auto;
+      }
+      
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      
+      .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #eff6ff 0%, #ffffff 50%, #eef2ff 100%);
+      }
+      
+      .loading-text {
+        margin-top: 16px;
+        color: #4b5563;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <noscript>
+      <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
+        <h2>JavaScript Required</h2>
+        <p>You need to enable JavaScript to run this application.</p>
+        <p>SmartClass requires JavaScript for optimal functionality.</p>
+      </div>
+    </noscript>
+    
+    <div id="root">
+      <!-- Loading state while React loads -->
+      <div class="loading-container">
+        <div style="display: flex; align-items: center; margin-bottom: 20px;">
+          <div style="background: #2563eb; padding: 8px; border-radius: 8px; margin-right: 12px;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
+              <path d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2Z"/>
+            </svg>
+          </div>
+          <h1 style="font-size: 24px; font-weight: bold; color: #1f2937;">SmartClass</h1>
+        </div>
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Loading Smart Classroom System...</p>
+      </div>
+    </div>
+    
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js')
+            .then(function(registration) {
+              console.log('ServiceWorker registration successful');
+            }, function(err) {
+              console.log('ServiceWorker registration failed: ', err);
+            });
+        });
+      }
+    </script>
+  </body>
+</html>

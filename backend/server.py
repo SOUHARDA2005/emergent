@@ -329,7 +329,7 @@ async def create_batch(batch_data: BatchCreate):
 
 @api_router.get("/batches", response_model=List[Batch])
 async def get_batches():
-    batches = await db.batches.find().to_list(100)
+    batches = await db.batches.find({}, {"_id": 0}).to_list(100)
     return [Batch(**batch) for batch in batches]
 
 @api_router.get("/batches/department/{department}/semester/{semester}", response_model=List[Batch])

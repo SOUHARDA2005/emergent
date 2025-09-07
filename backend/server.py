@@ -406,7 +406,7 @@ async def create_assignment(assignment_data: AssignmentCreate):
 
 @api_router.get("/assignments/batch/{batch_id}", response_model=List[Dict[str, Any]])
 async def get_assignments_for_batch(batch_id: str):
-    assignments = await db.assignments.find({"batch_id": batch_id}).to_list(100)
+    assignments = await db.assignments.find({"batch_id": batch_id}, {"_id": 0}).to_list(100)
     
     # Enrich with subject and faculty details
     enriched_assignments = []

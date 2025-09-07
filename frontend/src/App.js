@@ -193,6 +193,380 @@ const LandingPage = () => {
   );
 };
 
+// Admin Portal Component
+const AdminPortal = () => {
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [departments, setDepartments] = useState(['Computer Science', 'Electronics', 'Mechanical']);
+  const [semesters] = useState([1, 2, 3, 4, 5, 6, 7, 8]);
+  const [selectedDept, setSelectedDept] = useState('Computer Science');
+  const [selectedSem, setSelectedSem] = useState(3);
+  const [timetables, setTimetables] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [stats, setStats] = useState({
+    totalRooms: 0,
+    totalFaculty: 0,
+    totalSubjects: 0,
+    totalBatches: 0
+  });
+
+  useEffect(() => {
+    fetchDashboardStats();
+    fetchTimetables();
+  }, []);
+
+  const fetchDashboardStats = async () => {
+    try {
+      const [roomsRes, facultyRes, subjectsRes, batchesRes] = await Promise.all([
+        axios.get(`${API}/rooms`),
+        axios.get(`${API}/faculty`),
+        axios.get(`${API}/subjects`),
+        axios.get(`${API}/batches`)
+      ]);
+
+      setStats({
+        totalRooms: roomsRes.data.length,
+        totalFaculty: facultyRes.data.length,
+        totalSubjects: subjectsRes.data.length,
+        totalBatches: batchesRes.data.length
+      });
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
+    }
+  };
+
+  const fetchTimetables = async () => {
+    try {
+      const response = await axios.get(`${API}/timetables`);
+      setTimetables(response.data);
+    } catch (error) {
+      console.error('Error fetching timetables:', error);
+    }
+  };
+
+  const generateTimetable = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post(`${API}/timetables/generate/${encodeURIComponent(selectedDept)}/${selectedSem}`);
+      
+      // Activate the new timetable
+      await axios.patch(`${API}/timetables/${response.data.id}/activate`);
+      
+      alert(`Timetable generated successfully for ${selectedDept} Semester ${selectedSem}!`);
+      fetchTimetables();
+    } catch (error) {
+      console.error('Error generating timetable:', error);
+      alert('Error generating timetable. Please ensure you have the required data (rooms, faculty, subjects, batches).');
+    }
+    setLoading(false);
+  };
+
+  const initializeSampleData = async () => {
+    setLoading(true);
+    try {
+      await axios.post(`${API}/init-sample-data`);
+      alert('Sample data initialized successfully!');
+      fetchDashboardStats();
+      fetchTimetables();
+    } catch (error) {
+      console.error('Error initializing sample data:', error);
+      alert('Error initializing sample data.');
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white shadow">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <Link to="/" className="text-2xl font-bold text-indigo-600">SmartClass</Link>
+              <span className="ml-4 text-gray-600">Admin Portal</span>
+            </div>
+            <div className="flex items-center space-x-4">
+              <Link to="/student" className="text-indigo-600 hover:text-indigo-800">Student Portal</Link>
+              <Link to="/" className="text-indigo-600 hover:text-indigo-800">← Back to Home</Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Welcome Section */}
+        <div className="bg-white rounded-lg shadow p-6 mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
+          <p className="text-gray-600">Manage your institution's timetable scheduling system</p>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="bg-white rounded-lg shadow mb-8">
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-8 px-6">
+              <button
+                onClick={() => setActiveTab('dashboard')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'dashboard'
+                    ? 'border-indigo-500 text-indigo-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                📊 Dashboard
+              </button>
+              <button
+                onClick={() => setActiveTab('generate')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'generate'
+                    ? 'border-indigo-500 text-indigo-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                ⚡ Generate Timetable
+              </button>
+              <button
+                onClick={() => setActiveTab('timetables')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'timetables'
+                    ? 'border-indigo-500 text-indigo-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                📅 View Timetables
+              </button>
+            </nav>
+          </div>
+
+          <div className="p-6">
+            {/* Dashboard Tab */}
+            {activeTab === 'dashboard' && (
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">System Overview</h2>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                  <div className="bg-blue-50 rounded-lg p-6">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0">
+                        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                          <span className="text-white text-sm">🏢</span>
+                        </div>
+                      </div>
+                      <div className="ml-4">
+                        <p className="text-sm font-medium text-blue-600">Total Rooms</p>
+                        <p className="text-2xl font-bold text-blue-900">{stats.totalRooms}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-green-50 rounded-lg p-6">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0">
+                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                          <span className="text-white text-sm">👨‍🏫</span>
+                        </div>
+                      </div>
+                      <div className="ml-4">
+                        <p className="text-sm font-medium text-green-600">Total Faculty</p>
+                        <p className="text-2xl font-bold text-green-900">{stats.totalFaculty}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-yellow-50 rounded-lg p-6">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0">
+                        <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                          <span className="text-white text-sm">📚</span>
+                        </div>
+                      </div>
+                      <div className="ml-4">
+                        <p className="text-sm font-medium text-yellow-600">Total Subjects</p>
+                        <p className="text-2xl font-bold text-yellow-900">{stats.totalSubjects}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-purple-50 rounded-lg p-6">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0">
+                        <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                          <span className="text-white text-sm">👥</span>
+                        </div>
+                      </div>
+                      <div className="ml-4">
+                        <p className="text-sm font-medium text-purple-600">Total Batches</p>
+                        <p className="text-2xl font-bold text-purple-900">{stats.totalBatches}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg p-6">
+                  <h3 className="text-white text-lg font-semibold mb-2">Quick Setup</h3>
+                  <p className="text-indigo-100 mb-4">
+                    New to SmartClass? Initialize sample data to get started quickly with demo rooms, faculty, subjects, and batches.
+                  </p>
+                  <button
+                    onClick={initializeSampleData}
+                    disabled={loading}
+                    className="bg-white text-indigo-600 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors disabled:opacity-50"
+                  >
+                    {loading ? 'Initializing...' : '🚀 Initialize Sample Data'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Generate Timetable Tab */}
+            {activeTab === 'generate' && (
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">Generate New Timetable</h2>
+                
+                <div className="max-w-2xl">
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                    <h3 className="text-yellow-800 font-medium mb-2">⚠️ Prerequisites</h3>
+                    <ul className="text-yellow-700 text-sm space-y-1">
+                      <li>• Ensure rooms, faculty, subjects, and batches are configured</li>
+                      <li>• Faculty must be assigned to subjects they can teach</li>
+                      <li>• Batches must have subjects assigned to them</li>
+                      <li>• Room types should match subject requirements (labs for practicals)</li>
+                    </ul>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Select Department
+                      </label>
+                      <select
+                        value={selectedDept}
+                        onChange={(e) => setSelectedDept(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      >
+                        {departments.map(dept => (
+                          <option key={dept} value={dept}>{dept}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Select Semester
+                      </label>
+                      <select
+                        value={selectedSem}
+                        onChange={(e) => setSelectedSem(parseInt(e.target.value))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      >
+                        {semesters.map(sem => (
+                          <option key={sem} value={sem}>Semester {sem}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="bg-blue-50 rounded-lg p-4">
+                      <h4 className="font-medium text-blue-900 mb-2">🎯 Optimization Features</h4>
+                      <ul className="text-blue-800 text-sm space-y-1">
+                        <li>✓ Smart faculty-subject matching</li>
+                        <li>✓ Room capacity optimization</li>
+                        <li>✓ Workload balancing</li>
+                        <li>✓ Laboratory requirement handling</li>
+                        <li>✓ Time slot conflict resolution</li>
+                      </ul>
+                    </div>
+
+                    <button
+                      onClick={generateTimetable}
+                      disabled={loading}
+                      className="w-full bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {loading ? (
+                        <span className="flex items-center justify-center">
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                          Generating Optimized Timetable...
+                        </span>
+                      ) : (
+                        `⚡ Generate Timetable for ${selectedDept} Semester ${selectedSem}`
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* View Timetables Tab */}
+            {activeTab === 'timetables' && (
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">Generated Timetables</h2>
+                
+                {timetables.length > 0 ? (
+                  <div className="space-y-4">
+                    {timetables.map((timetable) => (
+                      <div key={timetable.id} className="bg-white border rounded-lg p-6 hover:shadow-md transition-shadow">
+                        <div className="flex justify-between items-start mb-4">
+                          <div>
+                            <h3 className="text-lg font-semibold text-gray-900">{timetable.name}</h3>
+                            <p className="text-gray-600">
+                              {timetable.department} • Semester {timetable.semester}
+                            </p>
+                          </div>
+                          <div className="flex items-center space-x-3">
+                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                              timetable.is_active 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-gray-100 text-gray-800'
+                            }`}>
+                              {timetable.is_active ? '✓ Active' : 'Inactive'}
+                            </span>
+                            <Link
+                              to={`/admin/timetable/${timetable.id}`}
+                              className="text-indigo-600 hover:text-indigo-800 font-medium"
+                            >
+                              View Details →
+                            </Link>
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+                          <div>
+                            <span className="font-medium">Classes Scheduled:</span> {timetable.entries?.length || 0}
+                          </div>
+                          <div>
+                            <span className="font-medium">Created:</span> {new Date(timetable.created_at).toLocaleDateString()}
+                          </div>
+                          <div>
+                            <span className="font-medium">Status:</span> 
+                            <span className={timetable.is_active ? 'text-green-600' : 'text-gray-500'}>
+                              {timetable.is_active ? ' Currently Active' : ' Draft'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                      <span className="text-4xl">📅</span>
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No Timetables Generated</h3>
+                    <p className="text-gray-600 mb-6">Start by generating your first optimized timetable.</p>
+                    <button
+                      onClick={() => setActiveTab('generate')}
+                      className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
+                    >
+                      Generate First Timetable
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Student Portal Component
 const StudentPortal = () => {
   const [selectedBatch, setSelectedBatch] = useState('');

@@ -107,51 +107,63 @@ user_problem_statement: "Smart Classroom and Timetable Scheduler with landing pa
 backend:
   - task: "Core Data Models and API Endpoints"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Implemented comprehensive data models for Room, Faculty, Subject, Batch, TimeSlot, TimetableEntry, Timetable, Assignment, StudentInfo with full CRUD APIs"
+        - working: true
+          agent: "main"
+          comment: "Fixed ObjectId serialization issues by adding _id: 0 projection to all MongoDB queries. All CRUD APIs working perfectly."
 
   - task: "Timetable Optimization Algorithm"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Built TimetableGenerator class with constraint satisfaction algorithm handling faculty availability, room capacity, subject requirements, and workload balancing"
+        - working: true
+          agent: "main"
+          comment: "Timetable generation tested and working. Generated 32 timetable entries for CS Semester 3 with proper constraints."
 
   - task: "Student Portal APIs"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Implemented student timetable view, assignments fetching, faculty and room information APIs with data enrichment"
+        - working: true
+          agent: "main"
+          comment: "Fixed ObjectId issues. Student timetable and assignments APIs now working perfectly with enriched data."
 
   - task: "Sample Data Initialization"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Created init-sample-data endpoint to populate system with demo rooms, faculty, subjects, batches, and assignments"
+        - working: true
+          agent: "main"
+          comment: "Sample data initialization working perfectly. Creates 5 rooms, 4 faculty, 5 subjects, 2 batches, and 2 assignments."
 
 frontend:
   - task: "Landing Page"

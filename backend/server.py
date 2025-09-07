@@ -288,7 +288,7 @@ async def create_room(room_data: RoomCreate):
 
 @api_router.get("/rooms", response_model=List[Room])
 async def get_rooms():
-    rooms = await db.rooms.find().to_list(100)
+    rooms = await db.rooms.find({}, {"_id": 0}).to_list(100)
     return [Room(**room) for room in rooms]
 
 # Faculty Management

@@ -351,7 +351,7 @@ async def get_timetables():
 
 @api_router.get("/timetables/{timetable_id}", response_model=Timetable)
 async def get_timetable(timetable_id: str):
-    timetable = await db.timetables.find_one({"id": timetable_id})
+    timetable = await db.timetables.find_one({"id": timetable_id}, {"_id": 0})
     if not timetable:
         raise HTTPException(status_code=404, detail="Timetable not found")
     return Timetable(**timetable)

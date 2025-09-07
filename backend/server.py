@@ -427,7 +427,7 @@ async def get_assignments_for_batch(batch_id: str):
 # Faculty and Room Info APIs
 @api_router.get("/faculty/{faculty_id}", response_model=Faculty)
 async def get_faculty_details(faculty_id: str):
-    faculty = await db.faculty.find_one({"id": faculty_id})
+    faculty = await db.faculty.find_one({"id": faculty_id}, {"_id": 0})
     if not faculty:
         raise HTTPException(status_code=404, detail="Faculty not found")
     return Faculty(**faculty)

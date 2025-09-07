@@ -501,7 +501,7 @@ const AdminPortal = () => {
                     <button
                       onClick={generateTimetable}
                       disabled={loading}
-                      className="w-full bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mb-4"
                     >
                       {loading ? (
                         <span className="flex items-center justify-center">
@@ -512,6 +512,24 @@ const AdminPortal = () => {
                         `⚡ Generate Timetable for ${selectedDept} Semester ${selectedSem}`
                       )}
                     </button>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <button
+                        onClick={() => clearTimetables('current')}
+                        disabled={loading}
+                        className="bg-yellow-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-yellow-700 transition-colors disabled:opacity-50"
+                      >
+                        🗑️ Clear Current Schedule
+                      </button>
+                      
+                      <button
+                        onClick={() => clearTimetables('all')}
+                        disabled={loading}
+                        className="bg-red-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
+                      >
+                        🗑️ Clear All Schedules
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -317,7 +317,7 @@ async def get_subjects():
 
 @api_router.get("/subjects/department/{department}/semester/{semester}", response_model=List[Subject])
 async def get_subjects_by_dept_sem(department: str, semester: int):
-    subjects = await db.subjects.find({"department": department, "semester": semester}).to_list(100)
+    subjects = await db.subjects.find({"department": department, "semester": semester}, {"_id": 0}).to_list(100)
     return [Subject(**subject) for subject in subjects]
 
 # Batch Management

@@ -377,6 +377,29 @@ async def activate_timetable(timetable_id: str):
     
     return {"message": "Timetable activated successfully"}
 
+@api_router.delete("/timetables/clear/{department}/{semester}")
+async def clear_timetables(department: str, semester: int):
+    """Clear all timetables for a specific department and semester"""
+    result = await db.timetables.delete_many({
+        "department": department, 
+        "semester": semester
+    })
+    
+    return {
+        "message": f"Cleared {result.deleted_count} timetables for {department} Semester {semester}",
+        "deleted_count": result.deleted_count
+    }
+
+@api_router.delete("/timetables/clear-all")
+async def clear_all_timetables():
+    """Clear all timetables from the system"""
+    result = await db.timetables.delete_many({})
+    
+    return {
+        "message": f"Cleared all {result.deleted_count} timetables from the system",
+        "deleted_count": result.deleted_count
+    }
+
 # Student Portal APIs
 @api_router.get("/student/timetable/{batch_id}")
 async def get_student_timetable(batch_id: str):

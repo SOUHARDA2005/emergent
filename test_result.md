@@ -222,14 +222,14 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Core Data Models and API Endpoints"
-    - "Timetable Optimization Algorithm"
-    - "Student Portal APIs"
-    - "Sample Data Initialization"
+    - "Landing Page"
+    - "Admin Portal Interface"
+    - "Student Portal Interface"
+    - "Timetable Display Component"
   stuck_tasks: []
   test_all: true
   test_priority: "high_first"
 
 agent_communication:
     - agent: "main"
-      message: "Built comprehensive Smart Classroom & Timetable Scheduler with FastAPI backend containing timetable optimization engine, React frontend with landing page and student portal. Ready for backend testing first, then frontend demo."
+      message: "Backend fully tested and working. Added clear schedule functionality to admin portal with API endpoints for clearing current dept/semester timetables and all timetables. Ready for comprehensive frontend testing of all 3 pages (landing, admin, student) and core user flows."
